@@ -31,3 +31,4 @@ jobs:
           context: ./app
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/test-terraform:1.0.0
+
