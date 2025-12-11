@@ -2,11 +2,11 @@ name: Build and Push Docker Image
 
 on:
   push:
+    branches:
+      - main
     paths:
       - "app/**"
       - ".github/workflows/docker-build.yml"
-    branches:
-      - main
 
 jobs:
   build-and-push:
@@ -30,5 +30,6 @@ jobs:
         with:
           context: ./app
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/test-terraform:1.0.0
+          tags: andyxalarcon/test-terraform:1.0.0
+          
 
