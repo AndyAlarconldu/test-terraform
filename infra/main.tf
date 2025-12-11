@@ -66,7 +66,7 @@ resource "aws_security_group" "ec2_sg" {
   }
 }
 
-# AMI Amazon Linux
+# AMI Amazon Linux 2023
 data "aws_ami" "amazon_linux" {
   owners      = ["amazon"]
   most_recent = true
@@ -85,6 +85,7 @@ resource "aws_launch_template" "app_lt" {
 
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
 
+  # user_data: script que levanta tu contenedor con la imagen de Docker Hub
   user_data = base64encode(
     templatefile("${path.module}/user_data.sh", {
       DOCKER_IMAGE = var.docker_image
@@ -106,7 +107,7 @@ resource "aws_lb_target_group" "app_tg" {
   health_check {
     path                = "/"
     protocol            = "HTTP"
-    matcher             = "200"
+    matcher             = "200-399"
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 5
@@ -114,14 +115,14 @@ resource "aws_lb_target_group" "app_tg" {
   }
 }
 
-# Auto Scaling Group
+# Auto Scaling Group (3 min, 4 max, 3 deseadas)
 resource "aws_autoscaling_group" "app_asg" {
   name                      = "${var.app_name}-asg"
-  desired_capacity          = 1
-  min_size                  = 1
-  max_size                  = 3
+  desired_capacity          = 3
+  min_size                  = 3
+  max_size                  = 4
   vpc_zone_identifier       = data.aws_subnets.default.ids
-  health_check_type         = "EC2"
+  health_check_type         = "ELB"
   health_check_grace_period = 60
 
   launch_template {
